@@ -16,13 +16,13 @@ public class UsuarioDtoRequest {
     private String email;
     private String nombre;
     private String apellido;
-    private List<Miembro> miembrosDelUsuario;
+    private String contraseña;
 
-    public UsuarioDtoRequest(String email, String nombre, String apellido, List<Miembro> miembrosDelUsuario) {
+    public UsuarioDtoRequest(String email, String nombre, String apellido, String contraseña) {
         this.email = email;
         this.nombre = nombre;
         this.apellido = apellido;
-        this.miembrosDelUsuario = miembrosDelUsuario;
+        this.contraseña = contraseña;
     }
 
 
@@ -50,11 +50,10 @@ public class UsuarioDtoRequest {
         this.apellido = apellido;
     }
 
-    public List<Miembro> getMiembrosDelUsuario() {
-        return miembrosDelUsuario;
+    public String getContraseña() {
+        return contraseña;
     }
-
-    public void setMiembrosDelUsuario(List<Miembro> miembrosDelUsuario) {
-        this.miembrosDelUsuario = miembrosDelUsuario;
+    public void setContraseña(String contraseña) {
+        this.contraseña = contraseña;
     }
 }

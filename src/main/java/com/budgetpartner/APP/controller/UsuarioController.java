@@ -4,6 +4,7 @@ package com.budgetpartner.APP.controller;
 import com.budgetpartner.APP.dto.request.UsuarioDtoRequest;
 import com.budgetpartner.APP.dto.response.MiembroDtoResponse;
 import com.budgetpartner.APP.dto.response.TareaDtoResponse;
+import com.budgetpartner.APP.dto.response.TokenResponse;
 import com.budgetpartner.APP.dto.response.UsuarioDtoResponse;
 import com.budgetpartner.APP.entity.Miembro;
 import com.budgetpartner.APP.entity.Usuario;
@@ -14,6 +15,7 @@ import com.budgetpartner.APP.service.MiembroService;
 import com.budgetpartner.APP.service.UsuarioService;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -42,7 +44,6 @@ public class UsuarioController {
         Usuario usuario = usuarioService.getUsuarioById(id);
         UsuarioDtoResponse usuarioDtoResp = UsuarioMapper.toDtoResponse(usuario);
         return ResponseEntity.ok(usuarioDtoResp);
-
     }
 
     /*
@@ -73,5 +74,22 @@ public class UsuarioController {
     }
 
     //TODO autenticación???
+
+    @PostMapping("/registro")
+    public ResponseEntity<TokenResponse> register(@RequestBody UsuarioDtoRequest request) {
+        final TokenResponse token = usuarioService.register(request);
+        return ResponseEntity.ok(token);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<TokenResponse> authenticate(@RequestBody UsuarioDtoRequest request) {
+        final TokenResponse token = usuarioService.login(request);
+        return ResponseEntity.ok(token);
+    }
+
+    @PostMapping("/refresh")
+    public TokenResponse refreshToken(@RequestHeader(HttpHeaders.AUTHORIZATION) final String authHeader) {
+        return usuarioService.refreshToken(authHeader);
+    }
 
 }
