@@ -1,9 +1,10 @@
 package com.budgetpartner.APP.service;
 
-import com.budgetpartner.APP.dto.request.UsuarioDtoRequest;
-import com.budgetpartner.APP.dto.response.TokenResponse;
+import com.budgetpartner.APP.dto.usuario.UsuarioDtoPostRequest;
+import com.budgetpartner.APP.dto.usuario.UsuarioDtoResponse;
+import com.budgetpartner.APP.dto.usuario.UsuarioDtoUpdateRequest;
+import com.budgetpartner.APP.dto.token.TokenResponse;
 import com.budgetpartner.APP.entity.Usuario;
-import com.budgetpartner.APP.dto.response.UsuarioDtoResponse;
 import com.budgetpartner.APP.mapper.UsuarioMapper;
 import com.budgetpartner.APP.repository.MiembroRepository;
 import com.budgetpartner.APP.repository.UsuarioRepository;
@@ -13,9 +14,8 @@ import com.budgetpartner.APP.exceptions.NotFoundException;
 //import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import javax.naming.AuthenticationException;
 
 
 @Service
@@ -23,13 +23,19 @@ public class UsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+    @Autowired
     private MiembroRepository miembroRepository;
+    @Autowired
     private AuthenticationManager authenticationManager;
+    @Autowired
+    private JwtService jwtService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     //ESTRUCTURA GENERAL DE LA LÓGICA DE LOS CONTROLADORES
     //Pasar de DtoRequest a Entity-> Insertar en DB->Pasar de Entity a DtoRequest->Return
 
-    public Usuario postUsuario(UsuarioDtoRequest UsuarioDtoReq){
+    public Usuario postUsuario(UsuarioDtoPostRequest UsuarioDtoReq){
 
         //TODO VARIABLES REPETIDAS (EMAIL)
         Usuario usuario = UsuarioMapper.toEntity(UsuarioDtoReq);
@@ -37,12 +43,16 @@ public class UsuarioService {
         return usuario;
     }
 
-    public Usuario getUsuarioById(Long id){
-        //Obtener ususario usando el id pasado en la llamada
-        Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Usuario no encontrado con id: " + id));
+    public UsuarioDtoResponse getUsuarioByIdAndTransform(String token){
 
-        return usuario;
+        String s = jwtService.extractUsuario(token);
+
+        System.out.println(s);
+
+        Usuario usuario = getUsuarioById(1L);
+        UsuarioDtoResponse dto = UsuarioMapper.toDtoResponse(usuario);
+
+        return dto;
     }
 
     public Usuario deleteUsuarioById(Long id){
@@ -58,11 +68,11 @@ public class UsuarioService {
 
 
 
-    public Usuario actualizarUsuario(UsuarioDtoRequest dto, Long id) {
+    public Usuario patchUsuario(UsuarioDtoUpdateRequest dto) {
 
         //Obtener ususario usando el id pasado en la llamada
-        Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Usuario no encontrado con id: " + id));
+        Usuario usuario = usuarioRepository.findById(dto.getId())
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado con id: " + dto.getId()));
 
         UsuarioMapper.updateEntityFromDtoRes(dto, usuario);
         usuarioRepository.save(usuario);
@@ -70,10 +80,8 @@ public class UsuarioService {
     }
 
     /// Auth
-    @Autowired
-    private JwtService jwtService;
 
-    public TokenResponse register(UsuarioDtoRequest UsuarioDtoReq){
+    public TokenResponse register(UsuarioDtoPostRequest UsuarioDtoReq){
 
         //TODO VARIABLES REPETIDAS (EMAIL)
         Usuario usuario = UsuarioMapper.toEntity(UsuarioDtoReq);
@@ -81,25 +89,30 @@ public class UsuarioService {
 
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
 
-
         String jwtToken = jwtService.generateToken(usuarioGuardado);
         String refreshToken = jwtService.generateTokenRefresh(usuarioGuardado);
 
         return new TokenResponse(jwtToken, refreshToken);
     }
 
-    public TokenResponse login(UsuarioDtoRequest usuarioDtoReq){
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        usuarioDtoReq.getEmail(),
-                        usuarioDtoReq.getContraseña()
+    public TokenResponse login(UsuarioDtoUpdateRequest dto){
 
-                )
-        );
+        try {
+            System.out.println("dto.getContraseña()");
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            dto.getEmail(),
+                            dto.getContraseña()
 
-        Usuario usuario = usuarioRepository.findByEmail(usuarioDtoReq.getEmail())
-                .orElseThrow(() -> new NotFoundException("Usuario no encontrado con email: " + usuarioDtoReq.getEmail()));
+                    )
+            );
+        }
+        catch(Exception E){System.out.println(E.getMessage());}
 
+        System.out.println("aaaaaaaaaaaaaa");
+        Usuario usuario = usuarioRepository.findByEmail(dto.getEmail())
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado con email: " + dto.getEmail()));
+        System.out.println("bbbbbbbbbbbbbb");
         var jwtToken = jwtService.generateToken(usuario);
         var refreshToken = jwtService.generateTokenRefresh(usuario);
         //revokeAllUserTokens(user);No es necesario porque no se guardan tokens
@@ -134,6 +147,33 @@ public class UsuarioService {
 
         return new TokenResponse(accessToken, refreshToken);
 
+    }
+
+    //OTROS MÉTODOS
+    public Usuario getUsuarioById(Long id){
+        //Obtener ususario usando el id pasado en la llamada
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado con id: " + id));
+
+        return usuario;
+    }
+
+    public Integer contarOrganizacionesPorUsuario(Long id){
+
+           //return usuarioRepository.contarOrganizacionesPorUsuario(id);
+        return null;
+    }
+
+    public Integer contarPlanesPorUsuario(Long id){
+
+        //return usuarioRepository.contarPlanesPorUsuario(id);
+        return null;
+    }
+
+    public Integer contarTareasPorUsuario(Long id){
+
+        return null;
+        //return usuarioRepository.contarTareasPorUsuario(id);
     }
 
 }

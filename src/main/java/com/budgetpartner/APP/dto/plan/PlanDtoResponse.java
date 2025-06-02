@@ -1,8 +1,13 @@
-package com.budgetpartner.APP.dto.response;
+package com.budgetpartner.APP.dto.plan;
 
+import com.budgetpartner.APP.dto.gasto.GastoDtoResponse;
+import com.budgetpartner.APP.dto.organizacion.OrganizacionDtoResponse;
+import com.budgetpartner.APP.dto.tarea.TareaDtoResponse;
 import com.budgetpartner.APP.entity.Organizacion;
+import com.budgetpartner.APP.entity.Tarea;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class PlanDtoResponse {
     /*
@@ -11,13 +16,16 @@ public class PlanDtoResponse {
     */
 
     private Long id;
-    private Organizacion organizacion;
+    private OrganizacionDtoResponse organizacion;
     private String nombre;
     private String descripcion;
     private LocalDateTime fechaInicio;
     private LocalDateTime fechaFin;
+    private List<TareaDtoResponse> tareas;
+    private List<GastoDtoResponse> gastos;
 
-    public PlanDtoResponse(Long id, Organizacion organizacion, String nombre, String descripcion, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+
+    public PlanDtoResponse(Long id, OrganizacionDtoResponse organizacion, String nombre, String descripcion, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
         this.id = id;
         this.organizacion = organizacion;
         this.nombre = nombre;
@@ -30,11 +38,11 @@ public class PlanDtoResponse {
         return id;
     }
 
-    public Organizacion getOrganizacion() {
+    public OrganizacionDtoResponse getOrganizacion() {
         return organizacion;
     }
 
-    public void setOrganizacion(Organizacion organizacion) {
+    public void setOrganizacion(OrganizacionDtoResponse organizacion) {
         this.organizacion = organizacion;
     }
 
@@ -68,5 +76,21 @@ public class PlanDtoResponse {
 
     public void setFechaFin(LocalDateTime fechaFin) {
         this.fechaFin = fechaFin;
+    }
+
+    public List<TareaDtoResponse> getTareas() {
+        return tareas;
+    }
+
+    public void setTareas(List<TareaDtoResponse> tareas) {
+        this.tareas = tareas;
+    }
+
+    public List<GastoDtoResponse> getGastos() {
+        return gastos;
+    }
+
+    public void setGastos(List<GastoDtoResponse> gastos) {
+        this.gastos = gastos;
     }
 }

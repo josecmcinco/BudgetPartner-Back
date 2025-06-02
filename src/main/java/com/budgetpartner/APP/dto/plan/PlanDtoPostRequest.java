@@ -1,13 +1,11 @@
-package com.budgetpartner.APP.dto.request;
-
-import com.budgetpartner.APP.entity.Organizacion;
+package com.budgetpartner.APP.dto.plan;
 
 import java.time.LocalDateTime;
 
-public class PlanDtoRequest {
+public class PlanDtoPostRequest {
     /*
         SE PRESCINDE DE LAS SIGUIENTES VARIABLES PARA EL DTO:
-        id-creadoEn-actualizadoEn
+        id-creadoEn-actualizadoEn-id
     */
 
     private Long OrganizacionId;
@@ -16,7 +14,7 @@ public class PlanDtoRequest {
     private LocalDateTime fechaInicio;
     private LocalDateTime fechaFin;
 
-    public PlanDtoRequest(Long OrganizacionId, String nombre, String descripcion, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+    public PlanDtoPostRequest(Long OrganizacionId, String nombre, String descripcion, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
         this.OrganizacionId = OrganizacionId;
         this.nombre = nombre;
         this.descripcion = descripcion;
@@ -25,7 +23,7 @@ public class PlanDtoRequest {
     }
 
 
-    public Long getOrganizacion() {
+    public Long getOrganizacionId() {
         return OrganizacionId;
     }
 

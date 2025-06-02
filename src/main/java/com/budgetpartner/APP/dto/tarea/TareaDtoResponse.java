@@ -1,17 +1,19 @@
-package com.budgetpartner.APP.dto.request;
+package com.budgetpartner.APP.dto.tarea;
 
+import com.budgetpartner.APP.dto.plan.PlanDtoResponse;
 import com.budgetpartner.APP.entity.Plan;
 import com.budgetpartner.APP.enums.EstadoTarea;
 
 import java.time.LocalDateTime;
 
-public class TareaDtoRequest {
+public class TareaDtoResponse {
 
     /*
         SE PRESCINDE DE LAS SIGUIENTES VARIABLES PARA EL DTO:
-        id-creadoEn-actualizadoEn
+        creadoEn-actualizadoEn
     */
-    private Long planId;
+    private Long id;
+    private PlanDtoResponse plan;
     private String titulo;
     private String descripcion;
     private LocalDateTime fechaFin;
@@ -19,8 +21,9 @@ public class TareaDtoRequest {
     private double costeEstimado;
     private String moneda;
 
-    public TareaDtoRequest(Long planId, String titulo, String descripcion, LocalDateTime fechaFin, EstadoTarea estado, double costeEstimado, String moneda) {
-        this.planId = planId;
+    public TareaDtoResponse(Long id, PlanDtoResponse plan, String titulo, String descripcion, LocalDateTime fechaFin, EstadoTarea estado, double costeEstimado, String moneda) {
+        this.id = id;
+        this.plan = plan;
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.fechaFin = fechaFin;
@@ -29,12 +32,16 @@ public class TareaDtoRequest {
         this.moneda = moneda;
     }
 
-    public Long getPlan() {
-        return planId;
+    public Long getId() {
+        return id;
     }
 
-    public Long getPlanId() {
-        return planId;
+    public PlanDtoResponse getPlan() {
+        return plan;
+    }
+
+    public void setPlan(PlanDtoResponse plan) {
+        this.plan = plan;
     }
 
     public String getTitulo() {

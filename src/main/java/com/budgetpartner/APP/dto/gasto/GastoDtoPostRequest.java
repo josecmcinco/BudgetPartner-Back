@@ -1,51 +1,40 @@
-package com.budgetpartner.APP.dto.response;
+package com.budgetpartner.APP.dto.gasto;
 
-import com.budgetpartner.APP.entity.Miembro;
 import com.budgetpartner.APP.entity.Plan;
 import com.budgetpartner.APP.entity.Tarea;
 
-public class GastoDtoResponse {
+public class GastoDtoPostRequest {
         /*
         SE PRESCINDE DE LAS SIGUIENTES VARIABLES PARA EL DTO:
-        creadoEn-actualizadoEn
+        id-creadoEn-actualizadoEn-id
         SE MODIFICA EL TIMPO DE LAS SIGUIENTES VARIABLES:
         miembrosDelUsuario
          */
 
-        private Long id;
-        private Tarea tarea;
-        private Plan plan;
+    //TODO solo parte como endeudados(lista) o siempre todos???
+        private Long planId;
+        private Long tareaId;
         private double cantidad;
         private String nombre;
-        private Miembro pagador;
+        private Long pagadorId;
         private String descripcion;
 
-    public GastoDtoResponse(Long id, Tarea tarea, Plan plan, double cantidad, String nombre, Miembro pagador, String descripcion) {
-        this.id = id;
-        this.tarea = tarea;
-        this.plan = plan;
+    public GastoDtoPostRequest(Long tareaId, Long planId, double cantidad, String nombre, Long pagadorId, String descripcion) {
+        this.tareaId = tareaId;
+        this.planId = planId;
         this.cantidad = cantidad;
         this.nombre = nombre;
-        this.pagador = pagador;
+        this.pagadorId = pagadorId;
         this.descripcion = descripcion;
     }
 
-    public Long getId(){return this.id;}
-
-    public Tarea getTarea() {
-        return tarea;
+    public Long getPlanId() {
+        return planId;
     }
 
-    public void setTarea(Tarea tarea) {
-        this.tarea = tarea;
-    }
-
-    public Plan getPlan() {
-        return plan;
-    }
-
-    public void setPlan(Plan plan) {
-        this.plan = plan;
+    //public void setPlanId(Long planId) {this.planId = planId;}
+    public Long getTareaId() {
+        return tareaId;
     }
 
     public double getCantidad() {
@@ -64,13 +53,11 @@ public class GastoDtoResponse {
         this.nombre = nombre;
     }
 
-    public Miembro getPagador() {
-        return pagador;
+    public Long getPagadorId() {
+        return pagadorId;
     }
 
-    public void setPagador(Miembro pagador) {
-        this.pagador = pagador;
-    }
+    //public void setPagadorId(Long pagadorId) {this.pagadorId = pagadorId;}
 
     public String getDescripcion() {
         return descripcion;

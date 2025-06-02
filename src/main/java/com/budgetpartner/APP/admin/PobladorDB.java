@@ -4,6 +4,7 @@ import com.budgetpartner.APP.entity.*;
 import com.budgetpartner.APP.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -32,6 +33,8 @@ public class PobladorDB {
     @Autowired private  PlanRepository planRepository;
 
     @Autowired private JdbcTemplate jdbc;
+
+    @Autowired private PasswordEncoder passwordEncoder;
 
 
 
@@ -147,32 +150,32 @@ public class PobladorDB {
         List<Miembro> miembros = new ArrayList<>();
 
         // Usuario 1 → org1, admin
-        Miembro m1 = new Miembro(org1, rolAdmin, "jperez");
+        Miembro m1 = new Miembro(org1, rolAdmin, "jperez", false);
         m1.asociarUsuario(usuarios.get(0));
         miembros.add(m1);
 
         // Usuario 2 → org1, miembro
-        Miembro m2 = new Miembro(org1, rolMiembro, "mgomez");
+        Miembro m2 = new Miembro(org1, rolMiembro, "mgomez", false);
         m2.asociarUsuario(usuarios.get(1));
         miembros.add(m2);
 
         // Usuario 3 → org1 y org2, admin
-        Miembro m3 = new Miembro(org1, rolAdmin, "cmartinez1");
+        Miembro m3 = new Miembro(org1, rolAdmin, "cmartinez1", false);
         m3.asociarUsuario(usuarios.get(2));
         miembros.add(m3);
 
-        Miembro m4 = new Miembro(org2, rolAdmin, "cmartinez2");
+        Miembro m4 = new Miembro(org2, rolAdmin, "cmartinez2", false);
         m4.asociarUsuario(usuarios.get(2));
         miembros.add(m4);
 
         // Miembros sin usuario en org1
-        Miembro m5 = new Miembro(org1, rolMiembro, "org1_invitado");
+        Miembro m5 = new Miembro(org1, rolMiembro, "org1_invitado", false);
         miembros.add(m5);
-        Miembro m6 = new Miembro(org1, rolMiembro, "org1_invitado2");
+        Miembro m6 = new Miembro(org1, rolMiembro, "org1_invitado2", false);
         miembros.add(m6);
 
         // Miembro sin usuario en org2
-        Miembro m7 = new Miembro(org2, rolMiembro, "org2_invitado");
+        Miembro m7 = new Miembro(org2, rolMiembro, "org2_invitado", false);
         miembros.add(m7);
 
         // Usuarios 4 y 5 → sin miembros
@@ -313,11 +316,11 @@ public class PobladorDB {
 
     public List<Usuario> poblarUsuarios() {
         List<Usuario> usuarios = Arrays.asList(
-                new Usuario("juan.perez@mail.com", "Juan", "Pérez", "contraseña123"),
-                new Usuario("maria.gomez@mail.com", "María", "Gómez", "contraseña456"),
-                new Usuario("carlos.martinez@mail.com", "Carlos", "Martínez", "contraseña789"),
-                new Usuario("ana.rodriguez@mail.com", "Ana", "Rodríguez", "contraseña012"),
-                new Usuario("luis.fernandez@mail.com", "Luis", "Fernández", "contraseña345")
+                new Usuario("juan.perez@mail.com", "Juan", "Pérez", passwordEncoder.encode("contraseña123")),
+                new Usuario("maria.gomez@mail.com", "María", "Gómez", passwordEncoder.encode("contraseña456")),
+                new Usuario("carlos.martinez@mail.com", "Carlos", "Martínez", passwordEncoder.encode("contraseña789")),
+                new Usuario("ana.rodriguez@mail.com", "Ana", "Rodríguez", passwordEncoder.encode("contraseña012")),
+                new Usuario("luis.fernandez@mail.com", "Luis", "Fernández", passwordEncoder.encode("contraseña345"))
         );
 
         usuarioRepository.saveAll(usuarios);
