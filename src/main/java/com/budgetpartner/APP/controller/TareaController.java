@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ public class TareaController {
 
     @Operation(
             summary = "Crear una tarea",
-            description = "Crea una tarea nueva dado su PENDIENTE. Devuelve el objeto creado como confirmación.",
+            description = "Crea una tarea nueva dado su planId/titulo/descripcion/fechaFin/estado/costeEstimado/moneda. Devuelve un mensaje de confirmación.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -68,13 +69,13 @@ public class TareaController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<TareaDtoResponse> getTareaById(@Validated @NotNull @PathVariable Long id) {
-        TareaDtoResponse tareaDtoResp  = tareaService.getTareaByIdAndTransform(id);
+        TareaDtoResponse tareaDtoResp  = tareaService.getTareaDtoById(id);
         return ResponseEntity.ok(tareaDtoResp);
     }
 
     @Operation(
             summary = "Actualizar parcialmente una tarea",
-            description = "Actualiza los campos indicados de una tarea existente. Devuelve un mensaje de confirmación.",
+            description = "Actualiza los campos planId/titulo/descripcion/fechaFin/estado/costeEstimado/moneda de una tarea existente. Devuelve un mensaje de confirmación.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -91,8 +92,7 @@ public class TareaController {
             }
     )
     @PatchMapping("/{id}")
-    public ResponseEntity<String> patchTareaById(@Validated @NotNull @RequestBody TareaDtoUpdateRequest tareaDtoUpReq,
-                                                 @PathVariable Long id) {
+    public ResponseEntity<String> patchTareaById(@Validated @NotNull @RequestBody TareaDtoUpdateRequest tareaDtoUpReq) {
         tareaService.patchTarea(tareaDtoUpReq);
         return ResponseEntity.ok("Tarea actualizada correctamente");
     }

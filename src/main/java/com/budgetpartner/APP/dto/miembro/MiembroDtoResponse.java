@@ -2,9 +2,11 @@ package com.budgetpartner.APP.dto.miembro;
 
 import com.budgetpartner.APP.dto.organizacion.OrganizacionDtoResponse;
 import com.budgetpartner.APP.entity.Rol;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.time.LocalDateTime;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class MiembroDtoResponse {
     /*
         SE PRESCINDE DE LAS SIGUIENTES VARIABLES PARA EL DTO:
@@ -12,15 +14,15 @@ public class MiembroDtoResponse {
     */
 
     private Long id;
-    private OrganizacionDtoResponse organizacionOrigen;
-    private Rol rolMiembro;
+    private OrganizacionDtoResponse organizacion;
+    private Rol rol;
     private String nick;
     private LocalDateTime fechaIngreso;
     private boolean isActivo;
 
-    public MiembroDtoResponse(Long id, Rol rolMiembro, String nick, LocalDateTime fechaIngreso, boolean isActivo) {
+    public MiembroDtoResponse(Long id, Rol rol, String nick, LocalDateTime fechaIngreso, boolean isActivo) {
         this.id = id;
-        this.rolMiembro = rolMiembro;
+        this.rol = rol;
         this.nick = nick;
         this.fechaIngreso = fechaIngreso;
         this.isActivo = isActivo;
@@ -31,18 +33,18 @@ public class MiembroDtoResponse {
         return id;
     }
 
-    public OrganizacionDtoResponse getOrganizacionOrigen() {
-        return organizacionOrigen;
+    public OrganizacionDtoResponse getOrganizacion() {
+        return organizacion;
     }
 
-    public void setOrganizacionOrigen(OrganizacionDtoResponse organizacionOrigen) {this.organizacionOrigen = organizacionOrigen;}
+    public void setOrganizacion(OrganizacionDtoResponse organizacion) {this.organizacion = organizacion;}
 
-    public Rol getRolMiembro() {
-        return rolMiembro;
+    public Rol getRol() {
+        return rol;
     }
 
-    public void setRolMiembro(Rol rolMiembro) {
-        this.rolMiembro = rolMiembro;
+    public void setRol(Rol rol) {
+        this.rol = rol;
     }
 
     public String getNick() {

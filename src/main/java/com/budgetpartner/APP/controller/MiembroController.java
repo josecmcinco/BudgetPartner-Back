@@ -1,7 +1,7 @@
 package com.budgetpartner.APP.controller;
 
 
-import com.budgetpartner.APP.dto.gasto.GastoDtoResponse;
+import com.budgetpartner.APP.dto.gasto.GastoDtoUpdateRequest;
 import com.budgetpartner.APP.dto.miembro.MiembroDtoResponse;
 import com.budgetpartner.APP.dto.miembro.MiembroDtoPostRequest;
 import com.budgetpartner.APP.dto.miembro.MiembroDtoUpdateRequest;
@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -30,19 +31,11 @@ public class MiembroController {
 
     @Operation(
             summary = "Crear un miembro",
-            description = "Crea un miembro nuevo dado su PENDIENTE. Devuelve el objeto creado como confirmación.",
+            description = "Crea un miembro nuevo dado su organizacionId/Rol/nick/isActivo. Devuelve un mensaje de confirmación.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Miembro creado correctamente",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    examples = @ExampleObject(
-                                            name = "MensajeConfirmacion",
-                                            summary = "Mensaje de éxito",
-                                            value = "PENDIENTE"
-                                    )
-                            )
+                            description = "Miembro creado correctamente"
                     )
             }
     )
@@ -73,25 +66,17 @@ public class MiembroController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<MiembroDtoResponse> getMiembroById(@Validated @NotNull @PathVariable Long id) {
-        MiembroDtoResponse miembroDtoResp = miembroService.getMiembroByIdAndTransform(id);
+        MiembroDtoResponse miembroDtoResp = miembroService.getMiembroDtoById(id);
         return ResponseEntity.ok(miembroDtoResp);
     }
 
     @Operation(
             summary = "Actualizar parcialmente un miembro",
-            description = "Actualiza los campos indicados de un miembro existente. Devuelve un mensaje de confirmación.",
+            description = "Actualiza los campos rol/miembro/nick/isActivo de un miembro existente. Devuelve un mensaje de confirmación.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Miembro actualizado correctamente",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    examples = @ExampleObject(
-                                            name = "MensajeConfirmacion",
-                                            summary = "Mensaje de éxito",
-                                            value = "PENDIENTE"
-                                    )
-                            )
+                            description = "Miembro actualizado correctamente"
                     )
             }
     )
@@ -107,15 +92,7 @@ public class MiembroController {
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Miembro eliminado correctamente",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    examples = @ExampleObject(
-                                            name = "MensajeConfirmacion",
-                                            summary = "Mensaje de éxito",
-                                            value = "\"Miembro eliminado correctamente\""
-                                    )
-                            )
+                            description = "Miembro eliminado correctamente"
                     )
             }
     )

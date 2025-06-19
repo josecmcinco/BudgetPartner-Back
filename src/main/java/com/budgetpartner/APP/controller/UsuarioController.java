@@ -1,17 +1,20 @@
 package com.budgetpartner.APP.controller;
 
 
-import com.budgetpartner.APP.dto.gasto.GastoDtoResponse;
-import com.budgetpartner.APP.dto.miembro.MiembroDtoResponse;
+import com.budgetpartner.APP.dto.dashborard.DashboardDtoResponse;
+import com.budgetpartner.APP.dto.organizacion.OrganizacionDtoResponse;
+import com.budgetpartner.APP.dto.token.TokenDtoRequest;
 import com.budgetpartner.APP.dto.usuario.UsuarioDtoPostRequest;
 import com.budgetpartner.APP.dto.usuario.UsuarioDtoResponse;
 import com.budgetpartner.APP.dto.usuario.UsuarioDtoUpdateRequest;
-import com.budgetpartner.APP.dto.token.TokenResponse;
-import com.budgetpartner.APP.entity.Miembro;
+import com.budgetpartner.APP.dto.token.TokenDtoResponse;
+import com.budgetpartner.APP.entity.Organizacion;
 import com.budgetpartner.APP.entity.Usuario;
-import com.budgetpartner.APP.mapper.MiembroMapper;
+import com.budgetpartner.APP.mapper.OrganizacionMapper;
 import com.budgetpartner.APP.mapper.UsuarioMapper;
+import com.budgetpartner.APP.service.DashboardService;
 import com.budgetpartner.APP.service.MiembroService;
+import com.budgetpartner.APP.service.OrganizacionService;
 import com.budgetpartner.APP.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -33,33 +36,10 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
     @Autowired
-    private MiembroService miembroService;
+    private OrganizacionService organizacionService;
 
-    @Operation(
-            summary = "Crear un usuario",
-            description = "Crea un usuario nuevo dado su PENDIENTE. Devuelve el objeto creado como confirmación.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Usuario creado correctamente",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    examples = @ExampleObject(
-                                            name = "MensajeConfirmacion",
-                                            summary = "Mensaje de éxito",
-                                            value = "PENDIENTE"
-                                    )
-                            )
-                    )
-            }
-    )
-    @PostMapping
-    public ResponseEntity<UsuarioDtoResponse> postUsuario(@Validated @NotNull @RequestBody UsuarioDtoPostRequest usuarioDtoReq) {
-        Usuario usuario = usuarioService.postUsuario(usuarioDtoReq);
-        UsuarioDtoResponse usuarioDtoResp = UsuarioMapper.toDtoResponse(usuario);
-        return ResponseEntity.ok(usuarioDtoResp);
-    }
-
+/*
+TODO ELIMINAR
     @Operation(
             summary = "Obtener un usuario por ID",
             description = "Devuelve un usuario existente dado un id.",
@@ -80,13 +60,13 @@ public class UsuarioController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioDtoResponse> getUsuarioById(@Validated @NotNull @PathVariable Long id) {
-        UsuarioDtoResponse usuarioDtoResp = usuarioService.getUsuarioByIdAndTransform("id");
+        UsuarioDtoResponse usuarioDtoResp = usuarioService.getUsuarioDtoById("id");
         return ResponseEntity.ok(usuarioDtoResp);
-    }
+    }*/
 
     @Operation(
             summary = "Actualizar parcialmente un usuario",
-            description = "Actualiza los campos indicados de un usuario existente. Devuelve un mensaje de confirmación.",
+            description = "Actualiza los campos email/nombre/apellido/contraseña de un usuario existente. Devuelve un mensaje de confirmación.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -102,7 +82,7 @@ public class UsuarioController {
                     )
             }
     )
-    @PatchMapping("/{id}")
+    @PatchMapping
     public ResponseEntity<String> patchUsuarioById(@Validated @NotNull @RequestBody UsuarioDtoUpdateRequest usuarioDtoUpReq) {
         usuarioService.patchUsuario(usuarioDtoUpReq);
         return ResponseEntity.ok("Usuario actualizado correctamente");
@@ -126,38 +106,89 @@ public class UsuarioController {
                     )
             }
     )
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUsuarioById(@Validated @NotNull @PathVariable Long id) {
-        Usuario usuario = usuarioService.deleteUsuarioById(id);
+    @DeleteMapping
+    public ResponseEntity<String> deleteUsuarioById() {
+        Usuario usuario = usuarioService.deleteUsuarioById();
         UsuarioDtoResponse usuarioDtoResp = UsuarioMapper.toDtoResponse(usuario);
         return ResponseEntity.ok("Usuario eliminado correctamente");
     }
 
-    @GetMapping("/{id}/miembros")
-    public ResponseEntity<List<MiembroDtoResponse>> getMiembrosByUsuarioId(@Validated @NotNull @PathVariable Long id) {
-        List<Miembro> miembros = miembroService.findMiembrosByUsuarioId(id);
-        List<MiembroDtoResponse> miembroDtoRespList = MiembroMapper.toDtoResponseListMiembro(miembros);
-        return ResponseEntity.ok(miembroDtoRespList);
-    }
 
+
+    //-----------------------------
     //LLAMADAS RELACIONADAS CON JWT
+    //-----------------------------
 
     //NO NECESITA JWT
+    @Operation(
+            summary = "Registrar usuario",
+            description = "Da de alta un usuario y devuelve los tokens de acceso y refresco",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Usuario creado correctamente",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(
+                                            name = "MensajeConfirmacion",
+                                            summary = "Mensaje de éxito",
+                                            value = "PENDIENTE"
+                                    )
+                            )
+                    )
+            }
+    )
     @PostMapping("/registro")
-    public ResponseEntity<TokenResponse> register(@RequestBody UsuarioDtoPostRequest request) {
-        final TokenResponse token = usuarioService.register(request);
+    public ResponseEntity<TokenDtoResponse> register(@RequestBody UsuarioDtoPostRequest request) {
+        final TokenDtoResponse token = usuarioService.register(request);
         return ResponseEntity.ok(token);
     }
 
     //NO NECESITA JWT
+    @Operation(
+            summary = "Inicio de sesión",
+            description = "Devuelve devuelve los tokens de acceso y refresco si coinciden el usuario y contraseña enviados.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Inicio de sesión correcto correctamente",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(
+                                            name = "MensajeConfirmacion",
+                                            summary = "Mensaje de éxito",
+                                            value = "PENDIENTE"
+                                    )
+                            )
+                    )
+            }
+    )
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> authenticate(@RequestBody UsuarioDtoUpdateRequest request) {
-        final TokenResponse token = usuarioService.login(request);
+    public ResponseEntity<TokenDtoResponse> authenticate(@RequestBody TokenDtoRequest request) {
+        final TokenDtoResponse token = usuarioService.login(request);
         return ResponseEntity.ok(token);
     }
 
+    @Operation(
+            summary = "Obtener token de acceso",
+            description = "Obtener el token de acceso de un usuario usando su token de refresco.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Token obtenido correctamente",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(
+                                            name = "MensajeConfirmacion",
+                                            summary = "Mensaje de éxito",
+                                            value = "PENDIENTE"
+                                    )
+                            )
+                    )
+            }
+    )
     @GetMapping("/refrescar")
-    public TokenResponse refreshToken(@RequestHeader(HttpHeaders.AUTHORIZATION) final String authHeader) {
+    public TokenDtoResponse refreshToken(@RequestHeader(HttpHeaders.AUTHORIZATION) final String authHeader) {
         return usuarioService.refreshToken(authHeader);
     }
 

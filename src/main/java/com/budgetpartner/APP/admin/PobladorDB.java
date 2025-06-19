@@ -1,6 +1,10 @@
 package com.budgetpartner.APP.admin;
 
 import com.budgetpartner.APP.entity.*;
+import com.budgetpartner.APP.enums.ModoPlan;
+import com.budgetpartner.APP.enums.MonedasDisponibles;
+import com.budgetpartner.APP.enums.NombreRol;
+import com.budgetpartner.APP.enums.TipoEstimacion;
 import com.budgetpartner.APP.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,30 +20,41 @@ import java.util.List;
 @Component
 public class PobladorDB {
 
+    @Autowired
+    private  UsuarioRepository usuarioRepository;
 
-    //Definición de los servicios
-    @Autowired private  UsuarioRepository usuarioRepository;
+    @Autowired
+    private  RolRepository rolRepository;
 
-    @Autowired private  RolRepository rolRepository;
+    @Autowired
+    private  OrganizacionRepository organizacionRepository;
 
-    @Autowired private  OrganizacionRepository organizacionRepository;
+    @Autowired
+    private  MiembroRepository miembroRepository;
 
-    @Autowired private  MiembroRepository miembroRepository;
+    @Autowired
+    private  GastoRepository gastoRepository;
 
-    @Autowired private  GastoRepository gastoRepository;
+    @Autowired
+    private  TareaRepository tareaRepository;
 
-    @Autowired private  TareaRepository tareaRepository;
+    @Autowired
+    private  PlanRepository planRepository;
 
-    @Autowired private  PlanRepository planRepository;
+    @Autowired
+    private JdbcTemplate jdbc;
 
-    @Autowired private JdbcTemplate jdbc;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-    @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired
+    private EstimacionRepository estimacionRepository;
 
 
 
     public void borrarTodo(){
         // Borrar entidades dependientes primero
+        estimacionRepository.deleteAll();
         gastoRepository.deleteAll();
         tareaRepository.deleteAll();
         miembroRepository.deleteAll();
@@ -89,6 +104,53 @@ public class PobladorDB {
 
         //Paso 4
         List<Gasto> gastos = poblarGastos(tareas, planes, miembros);
+
+        //Paso 5
+        List<Estimacion> estimaciones = poblarEstimaciones(planes, tareas, miembros, gastos);
+    }
+
+    public  List poblarEstimaciones(List<Plan> planes, List<Tarea> tareas, List<Miembro> miembros, List<Gasto> gastos){
+
+        //Estimacion1 estima a gasto1
+        //Estimacion3 estima a gasto11
+        Gasto gasto1 = gastos.get(0);
+        Gasto gasto11 = gastos.get(10);
+
+        //Estimacion1 tiene tarea = 2
+        //Estimacion1 tiene tarea = 4
+        Tarea tarea2 = tareas.get(1);
+        Tarea tarea4 = tareas.get(3);
+
+        //Tarea2 tiene plan = 1 por lo que: Estimacion1 tiene plan = 2
+        //Tarea4 tiene plan = 1 por lo que: Estimacion1 tiene plan = 2
+        Plan plan2 = planes.get(1);
+        Plan plan3 = planes.get(2);
+
+        //Miembros de organizacion 1 (y plan1)
+        Miembro miembro1= miembros.get(0);
+        Miembro miembro2= miembros.get(1);
+
+        //Miembros de organizacion 1 (y plan3)
+        Miembro miembro7= miembros.get(6);
+
+        //Miembros de organizacion 1 y 2
+        Miembro miembro3= miembros.get(1); //Tambien es organizacion1
+
+        List<Estimacion> estimaciones = Arrays.asList(
+
+                new Estimacion(plan2, tarea2, miembro1, 24.52, TipoEstimacion.ESTIMACION_TAREA, MonedasDisponibles.EUR, "Estimacion de tipo Tarea con pagador", miembro2, gasto1),
+
+                new Estimacion(plan2, tarea4, miembro3, 56.80, TipoEstimacion.ESTIMACION_TAREA, MonedasDisponibles.EUR, "Estimacion de tipo Tarea con pagador", null, gasto1),
+
+                new Estimacion(plan3, null, miembro7, 219.99, TipoEstimacion.ESTIMACION_GASTO, MonedasDisponibles.EUR, "Estimacion de tipo Tarea con pagador", miembro2, gasto1)
+        );
+
+        estimacionRepository.saveAll(estimaciones);
+
+        System.out.println("Estimaciones creadas");
+
+        return estimaciones;
+
     }
 
     public List<Gasto> poblarGastos(List<Tarea> tareas, List<Plan> planes, List<Miembro> miembros) {
@@ -208,25 +270,28 @@ public class PobladorDB {
                 new Plan(
                         org1,
                         "Plan A de la Organización 1",
-                        "Descripción del Plan A de la Organización 1",
+                        "Descripción del Plan A de la Organización. 1 PLAN SIMPLE",
                         LocalDateTime.of(2025, 6, 1, 10, 0),
-                        LocalDateTime.of(2025, 6, 30, 10, 0)
+                        LocalDateTime.of(2025, 6, 30, 10, 0),
+                        ModoPlan.simple
                 ),
 
                 new Plan(
                         org1,
                         "Plan B de la Organización 1",
-                        "Descripción del Plan B de la Organización 1",
+                        "Descripción del Plan B de la Organización 1. PLAN ESTRUCTURADO",
                         LocalDateTime.of(2025, 7, 1, 10, 0),
-                        LocalDateTime.of(2025, 7, 31, 10, 0)
+                        LocalDateTime.of(2025, 7, 31, 10, 0),
+                        ModoPlan.estructurado
                 ),
 
                 new Plan(
                         org2,
                         "Plan único de la Organización 2",
-                        "Descripción del Plan único de la Organización 2",
+                        "Descripción del Plan único de la Organización 2. PLAN SIMPLE",
                         LocalDateTime.of(2025, 6, 1, 10, 0),
-                        LocalDateTime.of(2025, 6, 15, 10, 0)
+                        LocalDateTime.of(2025, 6, 15, 10, 0),
+                        ModoPlan.simple
                 )
         );
 
@@ -238,9 +303,9 @@ public class PobladorDB {
 
     public List<Rol> poblarRoles() {
         List<Rol> roles = Arrays.asList(
-        new Rol("super", "ALL_PRIVILEGES"),
-         new Rol("administrador", "CREATE,READ,UPDATE,DELETE"),
-        new Rol("miembro", "READ")
+        new Rol(NombreRol.ROLE_SUPER),
+        new Rol(NombreRol.ROLE_ADMIN),
+        new Rol(NombreRol.ROLE_MEMBER)
         );
         rolRepository.saveAll(roles);
         System.out.println("Roles creados");
