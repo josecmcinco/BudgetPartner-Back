@@ -7,6 +7,7 @@ import com.budgetpartner.APP.dto.organizacion.OrganizacionDtoResponse;
 import com.budgetpartner.APP.dto.organizacion.OrganizacionDtoUpdateRequest;
 import com.budgetpartner.APP.dto.plan.PlanDtoResponse;
 import com.budgetpartner.APP.entity.*;
+import com.budgetpartner.APP.enums.NombreRol;
 import com.budgetpartner.APP.mapper.GastoMapper;
 import com.budgetpartner.APP.mapper.MiembroMapper;
 import com.budgetpartner.APP.mapper.OrganizacionMapper;
@@ -44,18 +45,14 @@ public class OrganizacionService {
     //Llamada para Endpoint
     //Crea una Entidad usando el DTO recibido por el usuario
     public Organizacion postOrganizacion(OrganizacionDtoPostRequest organizacionDtoReq) {
-        //TODO VARIABLES REPETIDAS (NOMBRE, CÓDIGO, ETC. según tu lógica de negocio)
 
         Organizacion organizacion = OrganizacionMapper.toEntity(organizacionDtoReq);
         organizacionRepository.save(organizacion);
 
         //Obtener el rol para poder meter el Miembro en la DB
-        //Rol rol = rolRepository.obtenerRolPorNombre(" ROLE_ADMIN")
-        //        .orElseThrow(() -> new NotFoundException("ERROR INTERNO: Miembro no encontrada con el nombre: ROLE_ADMIN"));
 
-        Rol rol = rolRepository.findById(1L)
+        Rol rol = rolRepository.obtenerRolPorNombre(NombreRol.ROLE_ADMIN)
                 .orElseThrow(() -> new NotFoundException("ERROR INTERNO: Miembro no encontrada con el nombre: ROLE_ADMIN"));
-
 
         Miembro miembro = new Miembro(organizacion, rol, organizacionDtoReq.getNickMiembroCreador(), true);
 
@@ -88,7 +85,6 @@ public class OrganizacionService {
         List<MiembroDtoResponse> ListMiembroDto = MiembroMapper.toDtoResponseListMiembro(miembros);
         organizacionDto.setMiembros(ListMiembroDto);
 
-
         //Se añade a OrganizacionDtoResponse la lista de Planes como Dtos (antes hay que meter los gastos en los planes)
         List<Plan> planes = planRepository.obtenerPlanesPorOrganizacionId(organizacionDto.getId());
         List<PlanDtoResponse> ListPlanDto = PlanMapper.toDtoResponseListPlan(planes);
@@ -115,9 +111,8 @@ public class OrganizacionService {
         Organizacion organizacion = organizacionRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Organización no encontrada con id: " + id));
 
+        //Borrado en cascada de organizaciones
         organizacionRepository.delete(organizacion);
-
-        //TODO AJUSTAR DEPENDENCIAS DE BORRADO (por ejemplo, planes, miembros, tareas relacionadas)
         return organizacion;
     }
 
