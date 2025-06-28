@@ -7,7 +7,6 @@ import com.budgetpartner.APP.enums.NombreRol;
 import com.budgetpartner.APP.enums.TipoEstimacion;
 import com.budgetpartner.APP.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -82,6 +81,7 @@ public class PobladorDB {
         jdbc.execute("ALTER SEQUENCE rol_seq RESTART WITH 1");
         jdbc.execute("ALTER SEQUENCE tarea_seq RESTART WITH 1");
         jdbc.execute("ALTER SEQUENCE gasto_seq RESTART WITH 1");
+        jdbc.execute("ALTER SEQUENCE estimacion_seq RESTART WITH 1");
 
         System.out.println("Identificadores reseteados con éxito.");
     }
@@ -144,7 +144,7 @@ public class PobladorDB {
 
                 new Estimacion(plan2, tarea4, miembro3, 56.80, TipoEstimacion.ESTIMACION_TAREA, MonedasDisponibles.EUR, "Estimacion de tipo Tarea con pagador", null, gasto1),
 
-                new Estimacion(plan3, null, miembro7, 219.99, TipoEstimacion.ESTIMACION_GASTO, MonedasDisponibles.EUR, "Estimacion de tipo Tarea con pagador", miembro2, gasto1)
+                new Estimacion(plan3, null, miembro7, 219.99, TipoEstimacion.ESTIMACION_PLAN, MonedasDisponibles.EUR, "Estimacion de tipo Tarea con pagador", miembro2, gasto1)
         );
 
         estimaciones = estimacionRepository.saveAll(estimaciones);
@@ -365,7 +365,7 @@ public class PobladorDB {
                     "Ir al supermercado y comprar alimentos para la semana.",
                     LocalDateTime.of(2025, 5, 18, 18, 0),
                     120.0,
-                    "EUR"
+                    MonedasDisponibles.EUR
             ),
 
 
@@ -375,7 +375,7 @@ public class PobladorDB {
                 "Realizar el pago mensual del servicio eléctrico antes de la fecha límite.",
                 LocalDateTime.of(2025, 5, 20, 17, 0),
                 75.0,
-                "EUR"
+                 MonedasDisponibles.EUR
         ),
 
 
@@ -385,7 +385,7 @@ public class PobladorDB {
                 "Llenar el depósito del coche familiar para los desplazamientos semanales.",
                 LocalDateTime.of(2025, 5, 16, 16, 0),
                 60.0,
-                "EUR"
+                 MonedasDisponibles.EUR
         ),
         new Tarea(
                 plan3,
@@ -393,7 +393,7 @@ public class PobladorDB {
                 "Realizar el pago mensual del servicio de internet del hogar.",
                 LocalDateTime.of(2025, 5, 19, 12, 0),
                 50.0,
-                "EUR"
+                MonedasDisponibles.EUR
         )
         );
 
