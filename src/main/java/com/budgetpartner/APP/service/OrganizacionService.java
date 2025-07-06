@@ -17,7 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.budgetpartner.APP.exceptions.NotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -38,32 +40,37 @@ public class OrganizacionService {
     private PlanRepository planRepository;
     @Autowired
     private RolRepository rolRepository;
-
+    @Autowired
+    private RepartoGastoRepository repartoGastoRepository;
 
     //ENDPOINTS
 
     //Llamada para Endpoint
     //Crea una Entidad usando el DTO recibido por el usuario
-    public Organizacion postOrganizacion(OrganizacionDtoPostRequest organizacionDtoReq) {
+    public OrganizacionDtoResponse postOrganizacion(OrganizacionDtoPostRequest organizacionDtoReq) {
 
         Organizacion organizacion = OrganizacionMapper.toEntity(organizacionDtoReq);
         organizacionRepository.save(organizacion);
 
         //Obtener el rol para poder meter el Miembro en la DB
-
         Rol rol = rolRepository.obtenerRolPorNombre(NombreRol.ROLE_ADMIN)
                 .orElseThrow(() -> new NotFoundException("ERROR INTERNO: Miembro no encontrada con el nombre: ROLE_ADMIN"));
 
-        Miembro miembro = new Miembro(organizacion, rol, organizacionDtoReq.getNickMiembroCreador(), true);
+        Miembro miembro = new Miembro(organizacion, rol, organizacionDtoReq.getNickMiembroCreador());
 
-        //Asociar el usuario al miembro
+        //Autenticar el miembro
         Usuario usuario = usuarioService.devolverUsuarioAutenticado();
-        miembro.asociarUsuario(usuario);
+        miembro.setUsuario(usuario);
+        miembro.setActivo(true);
+        miembro.setFechaIngreso(LocalDateTime.now());
 
         //Guardar miembro en la DB recién creada
         miembroRepository.save(miembro);
 
-        return organizacion;
+        OrganizacionDtoResponse organizacionDtoResp =  OrganizacionMapper.toDtoResponse(organizacion);
+        organizacionDtoResp.setMiembroCreador(miembro.getId());
+
+        return organizacionDtoResp;
     }
 
     //Llamada para Endpoint
@@ -106,10 +113,20 @@ public class OrganizacionService {
 
     //Llamada para Endpoint
     //Elimina una Entidad usando el id recibido por el usuario
-    public Organizacion deleteOrganizacionById(Long id) {
+    @Transactional //Implica interactuar con el muchos a muchos de repartoGastos y repartoTareas
+    public Organizacion deleteOrganizacionById(Long organizacionId) {
         //Obtener organización usando el id pasado en la llamada
-        Organizacion organizacion = organizacionRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Organización no encontrada con id: " + id));
+        Organizacion organizacion = organizacionRepository.findById(organizacionId)
+                .orElseThrow(() -> new NotFoundException("Organización no encontrada con id: " + organizacionId));
+
+        //El propósito de esta linea es hacer una llamada que devuelva los planes para que el gestor
+        // de la DB tenga una instancia de ellos antes del delete
+        List<Plan> listaPlanes = planRepository.obtenerPlanesPorOrganizacionId(organizacionId);
+
+        for (Plan plan : listaPlanes){
+            planRepository.delete(plan);
+        }
+
 
         //Borrado en cascada de organizaciones
         organizacionRepository.delete(organizacion);

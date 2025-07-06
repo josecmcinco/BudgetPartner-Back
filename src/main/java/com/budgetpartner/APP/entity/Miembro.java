@@ -35,28 +35,31 @@ public class Miembro {
     private boolean isActivo;
 
     @Column
+    private boolean isAsociado;
+
+    @Column
     private LocalDateTime creadoEn;
 
     @Column
     private LocalDateTime actualizadoEn;
 
-    @OneToMany(mappedBy = "miembro")
+    @OneToMany(mappedBy = "miembro", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RepartoGasto> repartos = new ArrayList<>();
 
-    //@OneToMany(mappedBy = "miembro", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    @OneToMany(mappedBy = "miembro", cascade = CascadeType.MERGE, orphanRemoval = true)
-    private List<MiembroTarea> miembroTareas = new ArrayList<>();
+    @OneToMany(mappedBy = "miembro", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RepartoTarea> miembroTareas = new ArrayList<>();
+
 
     //Constructor vacío para Hibernate
     public Miembro(){}
 
     //Creación de Miembro desde 0
     //POR DEFECTO NO TIENE USUARIO ADJUNTO
-    public Miembro(Organizacion organizacion, Rol rol, String nick, boolean isActivo) {
+    public Miembro(Organizacion organizacion, Rol rol, String nick) {
         this.organizacion = organizacion;
         this.rol = rol;
         this.nick = nick;
-        this.isActivo = isActivo;
+        //this.isActivo = isActivo;
 
         //Generado automáticamente
         this.actualizadoEn = LocalDateTime.now();
@@ -76,25 +79,6 @@ public class Miembro {
         this.creadoEn = creadoEn;
         this.actualizadoEn = actualizadoEn;
     }
-
-    //Asociación de un miembro a un Usuario de la DB
-    //TODO SOLO si la variable usuario está vacía
-    public void asociarUsuario(Usuario usuarioOrigen) {
-        this.usuario = usuarioOrigen;
-        this.isActivo = true;
-        this.fechaIngreso = LocalDateTime.now();
-        this.actualizadoEn = LocalDateTime.now();
-    }
-
-    public void desasociarUsuario() {
-        this.usuario = null;
-        this.isActivo = false;
-        this.fechaIngreso = null;
-        this.actualizadoEn = LocalDateTime.now();
-    }
-
-
-    //TODO eliminar usuario del miembro si no tiene miembro
 
     //Getters y Setters
     public Long getId() {
@@ -121,10 +105,6 @@ public class Miembro {
         return fechaIngreso;
     }
 
-    public boolean getIsActivo() {
-        return isActivo;
-    }
-
     public LocalDateTime getCreadoEn() {
         return creadoEn;
     }
@@ -141,5 +121,34 @@ public class Miembro {
     public void setNick(String nick) {
         this.nick = nick;
         this.actualizadoEn = LocalDateTime.now();
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.actualizadoEn = LocalDateTime.now();
+        this.usuario = usuario;
+    }
+
+    public void setFechaIngreso(LocalDateTime fechaIngreso) {
+
+        this.actualizadoEn = LocalDateTime.now();
+        this.fechaIngreso = fechaIngreso;
+    }
+
+    public boolean isActivo() {
+        return isActivo;
+    }
+
+    public void setActivo(boolean activo) {
+
+        this.actualizadoEn = LocalDateTime.now();
+        isActivo = activo;
+    }
+
+    public boolean isAsociado() {
+        return isAsociado;
+    }
+
+    public void setAsociado(boolean asociado) {
+        isAsociado = asociado;
     }
 }

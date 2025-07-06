@@ -1,7 +1,6 @@
 package com.budgetpartner.APP.controller;
 
 
-import com.budgetpartner.APP.dto.gasto.GastoDtoUpdateRequest;
 import com.budgetpartner.APP.dto.miembro.MiembroDtoResponse;
 import com.budgetpartner.APP.dto.miembro.MiembroDtoPostRequest;
 import com.budgetpartner.APP.dto.miembro.MiembroDtoUpdateRequest;
@@ -15,7 +14,6 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -40,10 +38,9 @@ public class MiembroController {
             }
     )
     @PostMapping
-    public ResponseEntity<String> postMiembro(@Validated @NotNull @RequestBody MiembroDtoPostRequest miembroDtoReq) {
-        Miembro miembro = miembroService.postMiembro(miembroDtoReq);
-        MiembroDtoResponse miembroDtoResp = MiembroMapper.toDtoResponse(miembro);
-        return ResponseEntity.ok("Miembro creado correctamente");
+    public ResponseEntity<MiembroDtoResponse> postMiembro(@Validated @NotNull @RequestBody MiembroDtoPostRequest miembroDtoReq) {
+        MiembroDtoResponse miembroDtoResp = miembroService.postMiembro(miembroDtoReq);
+        return ResponseEntity.ok(miembroDtoResp);
     }
 
     @Operation(
@@ -103,5 +100,46 @@ public class MiembroController {
         MiembroDtoResponse miembroDtoResp = MiembroMapper.toDtoResponse(miembro);
         return ResponseEntity.ok("Miembro eliminado correctamente");
     }
+
+    @Operation(
+            summary = "Asociar un miembro a un usario",
+            description = "Asocia un miembro al usuario que envía la petición. Devuelve el miembro asociado",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Miembro asociado correctamente"
+                    )
+            }
+    )
+    @PatchMapping("/{id}/associate")
+    public ResponseEntity<MiembroDtoResponse> associateMiembro(@Validated @NotNull @PathVariable Long id) {
+        MiembroDtoResponse miembroDtoResp  = miembroService.associateMiembro(id);
+        return ResponseEntity.ok(miembroDtoResp);
+    }
+
+    @Operation(
+            summary = "Dessociar un miembro a un usario",
+            description = "Dessocia un miembro al usuario que envía la petición. Devuelve un string de confirmación",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Miembro desasociado correctamente"
+                    )
+            }
+    )
+    @PatchMapping("/{id}/dissociate")
+    public ResponseEntity<String> dissociateMember(@Validated @NotNull @PathVariable Long id) {
+        MiembroDtoResponse miembroDtoResp  = miembroService.dissociateMember(id);
+        return ResponseEntity.ok("Miembro desasociado correctamente");
+    }
+
+    @GetMapping("/organizacion/{organizacionId}")
+    public ResponseEntity<MiembroDtoResponse> getMiembroPorUsuarioYOrgID(@PathVariable Long organizacionId) {
+        System.out.println("No tan ole");
+        MiembroDtoResponse miembro = miembroService.getMiembroPorUsernameYOrganizacion(organizacionId);
+        return ResponseEntity.ok(miembro);
+    }
+
+
 }
 

@@ -50,14 +50,25 @@ public class PobladorDB {
     @Autowired
     private EstimacionRepository estimacionRepository;
 
+    @Autowired
+    private RepartoGastoRepository repartoGastoRepository;
+
+    @Autowired
+    private  RepartoTareaRepository repartoTareaRepository;
 
 
+    @Transactional
     public void borrarTodo(){
-        // Borrar entidades dependientes primero
+        //Empezar con las tablas que representan las relaciones muchos a muchos
+        repartoTareaRepository.deleteAll();
+        repartoGastoRepository.deleteAll();
+
+        // Borrar entidades dependientes después
         estimacionRepository.deleteAll();
+        miembroRepository.deleteAll();
         gastoRepository.deleteAll();
         tareaRepository.deleteAll();
-        miembroRepository.deleteAll();
+
 
         // Luego las entidades principales
         usuarioRepository.deleteAll();
@@ -65,6 +76,8 @@ public class PobladorDB {
 
         rolRepository.deleteAll();
         organizacionRepository.deleteAll();
+
+
 
         System.out.println("Base de datos limpiada con éxito.");
 
@@ -234,36 +247,49 @@ public class PobladorDB {
 
         List<Miembro> miembros = new ArrayList<>();
 
-        // Usuario 1 → org1, admin
-        Miembro m1 = new Miembro(org1, rolAdmin, "jperez", false);
-        m1.asociarUsuario(usuarios.get(0));
+        // Usuario 1 -> org1, admin
+        Miembro m1 = new Miembro(org1, rolAdmin, "jperez");
+        m1.setUsuario(usuarios.get(0));
+        m1.setAsociado(true);
+        m1.setFechaIngreso(LocalDateTime.now());
+
         miembros.add(m1);
 
-        // Usuario 2 → org1, miembro
-        Miembro m2 = new Miembro(org1, rolMiembro, "mgomez", false);
-        m2.asociarUsuario(usuarios.get(1));
+        // Usuario 2 -> org1, miembro
+        Miembro m2 = new Miembro(org1, rolMiembro, "mgomez");
+        m2.setUsuario(usuarios.get(1));
+        m2.setAsociado(true);
+        m2.setFechaIngreso(LocalDateTime.now());
+
         miembros.add(m2);
 
-        // Usuario 3 → org1 y org2, admin
-        Miembro m3 = new Miembro(org1, rolAdmin, "cmartinez1", false);
-        m3.asociarUsuario(usuarios.get(2));
+        // Usuario 3 -> org1 y org2, admin
+        Miembro m3 = new Miembro(org1, rolAdmin, "cmartinez1");
+        m3.setUsuario(usuarios.get(2));
+        m3.setAsociado(true);
+        m3.setFechaIngreso(LocalDateTime.now());
+
         miembros.add(m3);
 
-        Miembro m4 = new Miembro(org2, rolAdmin, "cmartinez2", false);
-        m4.asociarUsuario(usuarios.get(2));
+
+        Miembro m4 = new Miembro(org2, rolAdmin, "cmartinez2");
+        m4.setUsuario(usuarios.get(2));
+        m4.setAsociado(true);
+        m4.setFechaIngreso(LocalDateTime.now());
+
         miembros.add(m4);
 
         // Miembros sin usuario en org1
-        Miembro m5 = new Miembro(org1, rolMiembro, "org1_invitado", false);
+        Miembro m5 = new Miembro(org1, rolMiembro, "org1_invitado");
         miembros.add(m5);
-        Miembro m6 = new Miembro(org1, rolMiembro, "org1_invitado2", false);
+        Miembro m6 = new Miembro(org1, rolMiembro, "org1_invitado2");
         miembros.add(m6);
 
         // Miembro sin usuario en org2
-        Miembro m7 = new Miembro(org2, rolMiembro, "org2_invitado", false);
+        Miembro m7 = new Miembro(org2, rolMiembro, "org2_invitado");
         miembros.add(m7);
 
-        // Usuarios 4 y 5 → sin miembros
+        // Usuarios 4 y 5 sin miembros
 
         miembros = miembroRepository.saveAll(miembros);
 
@@ -349,12 +375,11 @@ public class PobladorDB {
         //Tareas de Plan 3
         //Tarea4
 
-        Plan plan1 = planes.get(0);
         Plan plan2 = planes.get(1);
         Plan plan3 = planes.get(2);
 
         List<Miembro> listaMiembro1 = Arrays.asList(miembros.get(0));
-        List<Miembro> listaMiembro2 = Arrays.asList(miembros.get(0), miembros.get(3));
+        List<Miembro> listaMiembro2 = Arrays.asList(miembros.get(1), miembros.get(2));
         List<Miembro> listaMiembro3 = Arrays.asList(miembros.get(0), miembros.get(1));
         List<Miembro> listaMiembro4 = Arrays.asList(miembros.get(3), miembros.get(5));
 

@@ -27,7 +27,7 @@ public class EstimacionService {
     @Autowired
     private TareaRepository tareaRepository;
 
-    public void postEstimacion(EstimacionDtoPostRequest estimacionDtoReq) {
+    public EstimacionDtoResponse postEstimacion(EstimacionDtoPostRequest estimacionDtoReq) {
 
         Tarea tarea = null;
         if (estimacionDtoReq.getTareaId() != null && estimacionDtoReq.getTipoEstimacion() == TipoEstimacion.ESTIMACION_PLAN ) {
@@ -36,7 +36,6 @@ public class EstimacionService {
         else if (estimacionDtoReq.getTipoEstimacion() == TipoEstimacion.ESTIMACION_TAREA && estimacionDtoReq.getTareaId() == null) {
             throw new BadRequestException("Debe proporcionar una tarea para una estimación de tipo tarea");
         }
-
         else if (estimacionDtoReq.getTipoEstimacion() == TipoEstimacion.ESTIMACION_TAREA && estimacionDtoReq.getTareaId() != null){
             tarea = tareaRepository.findById(estimacionDtoReq.getTareaId())
                     .orElseThrow(() -> new NotFoundException("Tarea no encontrada con id: " + estimacionDtoReq.getTareaId()));
@@ -56,6 +55,9 @@ public class EstimacionService {
 
         Estimacion estimacion = EstimacionMapper.toEntity(estimacionDtoReq, tarea, plan, creador, pagador, gasto);
         estimacionRepository.save(estimacion);
+
+        return EstimacionMapper.toDtoResponse(estimacion);
+
     }
 
     public EstimacionDtoResponse getEstimacionDtoById(Long id) {
