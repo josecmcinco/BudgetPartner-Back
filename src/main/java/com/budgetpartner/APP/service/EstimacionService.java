@@ -3,15 +3,19 @@ package com.budgetpartner.APP.service;
 import com.budgetpartner.APP.dto.estimacion.EstimacionDtoPostRequest;
 import com.budgetpartner.APP.dto.estimacion.EstimacionDtoResponse;
 import com.budgetpartner.APP.dto.estimacion.EstimacionDtoUpdateRequest;
+import com.budgetpartner.APP.dto.miembro.MiembroDtoResponse;
 import com.budgetpartner.APP.entity.*;
 import com.budgetpartner.APP.enums.TipoEstimacion;
 import com.budgetpartner.APP.exceptions.BadRequestException;
 import com.budgetpartner.APP.exceptions.NotFoundException;
 import com.budgetpartner.APP.mapper.EstimacionMapper;
+import com.budgetpartner.APP.mapper.MiembroMapper;
 import com.budgetpartner.APP.repository.*;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class EstimacionService {
@@ -26,6 +30,10 @@ public class EstimacionService {
     private GastoRepository gastoRepository;
     @Autowired
     private TareaRepository tareaRepository;
+    @Autowired
+    private RepartoGastoRepository repartoGastoRepository;
+    @Autowired
+    private OrganizacionRepository organizacionRepository;
 
     public EstimacionDtoResponse postEstimacion(EstimacionDtoPostRequest estimacionDtoReq) {
 
@@ -54,8 +62,9 @@ public class EstimacionService {
                 .orElseThrow(() -> new NotFoundException("Gasto no encontrado con id: " + estimacionDtoReq.getGastoId()));
 
         Estimacion estimacion = EstimacionMapper.toEntity(estimacionDtoReq, tarea, plan, creador, pagador, gasto);
-        estimacionRepository.save(estimacion);
 
+        //Enviar elemento insertado en la db porque tiene el id
+        estimacion = estimacionRepository.save(estimacion);
         return EstimacionMapper.toDtoResponse(estimacion);
 
     }

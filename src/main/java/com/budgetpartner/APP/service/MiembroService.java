@@ -39,13 +39,13 @@ public class MiembroService {
         Organizacion organizacion = organizacionRepository.findById(dto.getOrganizacionId())
                 .orElseThrow(() -> new NotFoundException("Organización no encontrada con id: " + (dto.getOrganizacionId())));
 
-        System.out.println(dto.getRolId());
-
         Rol rol = rolRepository.findById(dto.getRolId())
                 .orElseThrow(() -> new NotFoundException("Rol no encontrada con id: " + (dto.getRolId())));
 
         Miembro miembro = MiembroMapper.toEntity(dto, organizacion, rol);
-        miembroRepository.save(miembro);
+
+        //Enviar elemento insertado en la db porque tiene el id
+        miembro = miembroRepository.save(miembro);
         return MiembroMapper.toDtoResponse(miembro);
     }
 

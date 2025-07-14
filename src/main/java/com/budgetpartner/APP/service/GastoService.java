@@ -71,7 +71,9 @@ public class GastoService {
 
         //Crea el gasto
         Gasto gasto = GastoMapper.toEntity(gastoDtoReq, tarea, plan, pagador);
-        gastoRepository.save(gasto);
+
+        //Enviar elemento insertado en la db porque tiene el id
+        gasto = gastoRepository.save(gasto);
 
         //Crea las deudas de cada miembro en base al gasto
         List<Long> idEndeudadosList = gastoDtoReq.getListaMiembrosEndeudados();
@@ -91,7 +93,6 @@ public class GastoService {
                 .orElseThrow(() -> new NotFoundException("Gasto no encontrado con id: " + id));
 
         List<Miembro> miembrosEndeudados = gastoRepository.findMiembrosByGastoId(id);
-        System.out.println(miembrosEndeudados);
 
         GastoDtoResponse gastoDtoResp = GastoMapper.toDtoResponse(gasto);
         return gastoDtoResp;
